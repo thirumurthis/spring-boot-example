@@ -6,7 +6,7 @@ Sample Spring-boot-programs
   - Eureka client configured, application.properties which configuration to set discover client on server and register.
   
 ### subject-service
-   - This calls the db-service, using the Erukea service (http://db-service/api/subjects)
+   - This calls the db-service, using the Erukea-server explicit (http://db-service/api/subjects)
    - Eureka client configured, application.properties
    
 ### eureka-service
