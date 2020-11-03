@@ -11,3 +11,34 @@ Sample Spring-boot-programs
    
 ### eureka-service
    - This project uses Zuul and Eureka service (a server part, with configurations)
+
+
+### Using `Eureka discovery` for getting the registered instances using `Ribbon`
+   - Set the `applicaton.properties` with below content
+        - `spring.application.name=student-service`
+        - `eureka.instance.instanceId=${spring.application.name}.${random.value}
+      - For runnning, the service instance, update the `server.port=8081` and different for each instance.
+   - pom.xml, use dependency
+```
+    <dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-ribbon</artifactId>
+		</dependency>
+```
+   - in the controller or configuration class on spring boot consumer use LoadBalanceer
+```
+....
+	@Autowired
+	private LoadBalancerClient loadBalancer;
+	
+	public void getEmployee() throws RestClientException, IOException {
+		
+		ServiceInstance serviceInstance=loadBalancer.choose("student-service"); // no actual url is hard coded here
+		String baseUrl=serviceInstance.getUri().toString();
+		baseUrl=baseUrl+"/students";
+		
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<String> response=null;
+    ....
+```
+   
