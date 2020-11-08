@@ -19,8 +19,8 @@ Sample Spring-boot-programs
    - student-service will be invoking the db-service and uses the eurkea regeistered url.
    - Note: When there are many number of instance of application is running in differeng ports.
    - Set the `applicaton.properties` with below content on all the service projects (in eclipse run the project multiple times with different port#)
-        - `spring.application.name=student-service`
-        - `eureka.instance.instanceId=${spring.application.name}.${random.value}
+        - spring.application.name=student-service
+        - eureka.instance.instanceId=${spring.application.name}.${random.value}
    - in pom.xml, use dependency
 ```
     <dependency>
@@ -28,7 +28,7 @@ Sample Spring-boot-programs
 	<artifactId>spring-cloud-starter-ribbon</artifactId>
     </dependency>
 ```
-   - in student-service controller class on spring boot consumer use LoadBalancer object
+   - in student-service controller class inject LoadBalancer object
    - with `ServiceInstance` class we can get the base URL and fire the required end point to db-service.
 ```
 ....
@@ -49,7 +49,7 @@ Sample Spring-boot-programs
    #### Using Ribbion for client side load balancing.
    -  Ribbon can be used for Client side load-balancing, when using without Eureka server we might need to create Ribbon configuration java class.
    ```java
-   //RibbinConfig.ajava
+   //RibbinConfig.java
    public class RibbonConfig{
      @AutoWired
      IClientConfig config;
@@ -63,7 +63,7 @@ Sample Spring-boot-programs
      public IRule rule(IClientCondfig config){
      return new AvailablityFilteringRuke();
      }
-     -------------------------------------------------------------
+     //-------------------------------------------------------------
      // Application.java
      // in the main class @SpringBootApplication annotated class use
      @RibbonClient(name="appclient",configuration=RibbonConfig.class)
@@ -74,11 +74,12 @@ Sample Spring-boot-programs
      public RestTemplate restTemplate(){
        return new RestTemplate();
       }
-      -------------------------------------------------------------
+      //-------------------------------------------------------------
       //controller java class
       //AppController.java
       @Restcontroller
       @RequestMapping("/api")
+      .....
       @AutoWired
       RestTemplate template;
       
