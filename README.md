@@ -42,7 +42,8 @@ Sample Spring-boot-programs
     ....
 ```
    
-   - Ribbon can be used for Client side load-balancing, when using without Eureka server we might need to create Ribbon configuration java class.
+   #### Using Ribbion for client side load balancing.
+   -  Ribbon can be used for Client side load-balancing, when using without Eureka server we might need to create Ribbon configuration java class.
    ```java
    public class RibbonConfig{
      @AutoWired
@@ -58,6 +59,7 @@ Sample Spring-boot-programs
      return new AvailablityFilteringRuke();
      }
      
+     // Application.java
      // in the main class @SpringBootApplication annotated class use
      @RibbonClient(name="appclient",configuration=RibbonConfig.class)
      ...
@@ -67,6 +69,23 @@ Sample Spring-boot-programs
      public RestTemplate restTemplate(){
        return new RestTemplate();
       }
+      
+      //controller java class
+      @Restcontroller
+      @RequestMapping("/api")
+      @AutoWired
+      RestTemplate template;
+      
+      @Value("${server.port}")
+      @GetMapping("message")
+      public String getMessage(){
+      // use the @Ribbonclient name in the url -> which is invoking another message service.
+      // assume another service is exposed at that specific url.
+        String url= "http://appclient/api/message"
+	return template.getForObject(url,String.class);
+	
+      }
+      
    ```
    ```yaml
    # application.yml
