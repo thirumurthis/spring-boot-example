@@ -21,9 +21,9 @@ Sample Spring-boot-programs
    - pom.xml, use dependency
 ```
     <dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-ribbon</artifactId>
-		</dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-ribbon</artifactId>
+    </dependency>
 ```
    - in the controller or configuration class on spring boot consumer use LoadBalanceer
 ```
@@ -42,3 +42,43 @@ Sample Spring-boot-programs
     ....
 ```
    
+   - Ribbon can be used for Client side load-balancing, when using without Eureka server we might need to create Ribbon configuration java class.
+   ```java
+   public class RibbonConfig{
+     @AutoWired
+     IClientConfig config;
+     
+     @Bean
+     public IPing ping(IclientConfig config){
+     return new PingUrl();
+     }
+     
+     @Bean
+     public IRule rule(IClientCondfig config){
+     return new AvailablityFilteringRuke();
+     }
+     
+     // in the main class @SpringBootApplication annotated class use
+     @RibbonClient(name="appclient",configuration=RibbonConfig.class)
+     ...
+     
+     @Bean
+     @LoadBalanced
+     public RestTemplate restTemplate(){
+       return new RestTemplate();
+      }
+   ```
+   ```yaml
+   # application.yml
+   appclient  #name of the client used in the @RibbonClient
+      ribbon:
+         eureka:
+	   enabled: false
+	 listOfServers: localhost:8080,localhost:8081
+	 ServerListRefershInterval: 2000
+   ```
+#### API Gateway
+  - Two options,  `Zuul` vs `spring cloud gateway` used as API gate way
+     - Zuul 1.0 used in spring which blocking or synchornized, servlet based.
+     - Spring cloud gateway- spring framework 5 based Non-blocking or async.
+  
