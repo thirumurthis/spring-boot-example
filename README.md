@@ -2,30 +2,34 @@
 Sample Spring-boot-programs
 
 ### db-service 
-  - h2 instance with some data loaded.
-  - Eureka client configured, application.properties which configuration to set discover client on server and register.
+  - uses h2 in memory instance with some data loaded using the data.sql and schema.sql.
+  - add and get service controller created which will be invoked from another service for demo puropose.
+  - this service is configured as Eureka client, at application.properties has the  configuration, so this will be discovered on server and registered.
   
 ### subject-service
-   - This calls the db-service, using the Erukea-server explicit (http://db-service/api/subjects)
-   - Eureka client configured, application.properties
+   - This service is used to call the db-service, using the Erukea-server url explicit (http://db-service/api/subjects)
+   - This service is also configured as Eureka client refer the application.properties, where this will be discovered by eureka server and registered.
    
 ### eureka-service
-   - This project uses Zuul and Eureka service (a server part, with configurations)
+   - This service is exposed as eureka server, and configured with not to act as client.
+   - This service is also uses Zuul (acts as API gateway) for proxing the incoming request and disciver the Eureka service.
+      - check the application.properties for redirection of incoming url to db-service or subject-service
 
-
-### Using `Eureka discovery` for getting the registered instances using `Ribbon`
-   - Set the `applicaton.properties` with below content
+### Using `Eureka discovery` fetch the url, registered to server using `Ribbon`
+   - student-service will be invoking the db-service and uses the eurkea regeistered url.
+   - Note: When there are many number of instance of application is running in differeng ports.
+   - Set the `applicaton.properties` with below content on all the service projects (in eclipse run the project multiple times with different port#)
         - `spring.application.name=student-service`
         - `eureka.instance.instanceId=${spring.application.name}.${random.value}
-      - For runnning, the service instance, update the `server.port=8081` and different for each instance.
-   - pom.xml, use dependency
+   - in pom.xml, use dependency
 ```
     <dependency>
 	<groupId>org.springframework.cloud</groupId>
 	<artifactId>spring-cloud-starter-ribbon</artifactId>
     </dependency>
 ```
-   - in the controller or configuration class on spring boot consumer use LoadBalanceer
+   - in student-service controller class on spring boot consumer use LoadBalancer object
+   - with `ServiceInstance` class we can get the base URL and fire the required end point to db-service.
 ```
 ....
 	@Autowired
