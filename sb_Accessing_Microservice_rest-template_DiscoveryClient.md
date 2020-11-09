@@ -3,7 +3,7 @@
 - Create a Payment microservice - registered to eureka server as `payment-service`
 - Both the service, include eureka server. The both service include eureka-discovery-client.
 
-```
+```java
 @RestController
 @RequestMapping("/api")
 public class ProductController {
@@ -11,22 +11,22 @@ public class ProductController {
 	@Autowired
 	private RestTemplate restTemplate;
   
-  //Using the discovery client
-  //The zuul configuration is not applied to the eureka server
+       //Using the discovery client
+       //The zuul configuration is NOT applied to the eureka server
  	@Autowired
 	private DiscoveryClient discoveryClient;
 	
 	@GetMapping("/products")
 	public List<Subjects> getSubjects(){
 		
-   	List<ServiceInstance> instances=discoveryClient.getInstances("order-service");
-		ServiceInstance serviceInstance=instances.get(0);
+   	   List<ServiceInstance> instances=discoveryClient.getInstances("order-service");
+	   ServiceInstance serviceInstance=instances.get(0);
 		
-		String baseUrl=serviceInstance.getUri().toString();
-		ParameterizedTypeReference<List<Order>> order = new ParameterizedTypeReference<List<Order>>() {};
+	   String baseUrl=serviceInstance.getUri().toString();
+	   ParameterizedTypeReference<List<Order>> order = new ParameterizedTypeReference<List<Order>>() {};
 
-		ResponseEntity<List<Order>> response =  restTemplate.exchange(URL, HttpMethod.GET, null, order);
-		return response.getBody();
+	   ResponseEntity<List<Order>> response =  restTemplate.exchange(URL, HttpMethod.GET, null, order);
+	   return response.getBody();
 	}
 }
 ```
@@ -40,7 +40,8 @@ public class ProductController {
    </dependency>
  ```
 - add `application.yml` configuration
-```
+
+```yml
 spring:
   application:
     name: product-service
