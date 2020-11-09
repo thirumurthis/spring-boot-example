@@ -18,14 +18,16 @@ public class ProductController {
 	
 	@GetMapping("/products")
 	public List<Subjects> getSubjects(){
-		
+	
    	   List<ServiceInstance> instances=discoveryClient.getInstances("order-service");
 	   ServiceInstance serviceInstance=instances.get(0);
-		
+	   
+	   // below provides http://order-service/
 	   String baseUrl=serviceInstance.getUri().toString();
+	   baseUrl = baseUrl + "/api/orders"
 	   ParameterizedTypeReference<List<Order>> order = new ParameterizedTypeReference<List<Order>>() {};
 
-	   ResponseEntity<List<Order>> response =  restTemplate.exchange(URL, HttpMethod.GET, null, order);
+	   ResponseEntity<List<Order>> response =  restTemplate.exchange(baseUrl, HttpMethod.GET, null, order);
 	   return response.getBody();
 	}
 }
