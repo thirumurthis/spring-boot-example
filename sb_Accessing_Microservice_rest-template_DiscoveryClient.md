@@ -32,12 +32,12 @@ public class ProductController {
 ```
  - To include the Eureka client in the service.
  - pom.xml
- ```
-    // include below dependencies.
- 		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-eureka</artifactId>
-		</dependency>
+ ```xml
+    <!-- // include below dependencies. -->
+   <dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-eureka</artifactId>
+   </dependency>
  ```
 - add `application.yml` configuration
 ```
