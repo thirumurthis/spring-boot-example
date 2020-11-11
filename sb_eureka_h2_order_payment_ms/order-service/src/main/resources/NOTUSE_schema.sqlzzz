@@ -1,0 +1,2 @@
+--CREATE SEQUENCE  IF NOT EXISTS order_id_seq;
+--create table ORDER_INFO (order_id INT not null default order_id_seq.nextval primary key , order_name varchar(300) not null, order_amount decimal not null );
