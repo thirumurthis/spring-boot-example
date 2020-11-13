@@ -77,8 +77,10 @@
           }
         }
        ```
-       - Add configuration on the the cloud gateway service.
-       ```yaml
+       
+       - Below configuration on the the cloud gateway service, helps to setup the fallback using circuit breaker and hystrix.
+       
+```yaml
 spring:
   application:
     name: GATEWAY-SERVICE
@@ -113,7 +115,7 @@ spring:
       exposure:
         include:
         - hystrix.stream
-       ```
-   
+```
+
    - Once the Service starts successfully, use the url to validate if service  is up `http://localhost:8801/actuator/hystrix.stream`.
    - The Circuit breaker configuration in the filters, invokes the fallback url in case if service is down.
