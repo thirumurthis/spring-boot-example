@@ -39,6 +39,7 @@
          ```
     - Adding **hystrix** circuit breaker logic to the cloud gateway api, so in case of any failure the order and payment service will use fallback method.
     - Below steps is needed to configure hystrix.
+    
        - add dependency to pom.xml
        ```xml
        <dependency>
@@ -69,7 +70,42 @@
           }
         }
        ```
-       - Add configuration over the cloud gateway configuration.
+       - Add configuration on the the cloud gateway service.
        ```yaml
-       
+spring:
+  application:
+    name: GATEWAY-SERVICE
+  cloud:
+    gateway:
+      routes:
+      - id: order-service
+        uri: lb://ORDER-SERVICE
+        predicates:
+          - Path=/order/** 
+        filters:
+          - name: CircuitBreaker
+            args:
+              name: order-service-failback
+              fallbackUri: forward:/orderServiceFailOver
+      - id: payment-service
+        uri: lb://PAYMENT-SERVICE
+        predicates:
+          - Path=/payment/**
+        filters:
+          - name: CircuitBreaker
+            args:
+              name: payment-service-failback
+              fallbackUri: forward:/paymentServiceFailOver  
+
+ hystrix.command.fallbackcmd.execution.isolation.thread.timeoutInMilliseconds: 5000
+ 
+ management:
+  endpoints:
+    web:
+      exposure:
+        include:
+        - hystrix.stream
        ```
+   
+   - Once the Service starts successfully, use the url to validate if service  is up `http://localhost:8801/actuator/hystrix.stream`.
+   - The Circuit breaker configuration in the filters, invokes the fallback url in case if service is down.
