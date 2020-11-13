@@ -28,7 +28,7 @@
       - Once the service is up, use `http://localhost:8801/order/addOrder` to post order request. 
       - Note: we are using gateway service port 8801
    
-         ```yaml
+```yaml
          spring:
             application:
               name: GATEWAY-SERVICE
@@ -43,22 +43,22 @@
                   uri: lb://PAYMENT-SERVICE
                   predicates:
                     - Path=/payment/**
-         ```
+```
     - Adding **hystrix** circuit breaker logic to the cloud gateway api, so in case of any failure the order and payment service will use fallback method.
     - Below steps is needed to configure hystrix.
     
        - add dependency to pom.xml
-       ```xml
+ ```xml
          <dependency>
 	    <groupId>org.springframework.cloud</groupId>
 	    <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
 	</dependency>
-       ```
+```
        
        - Add `@EnableHystrix ` annotation on the main application CloudGatewayApplication.java in this case.
        
        - Create a rest controller class for fallback method handling, like below.
-       ```java
+ ```java
         package com.cloudgateway.resource;
         import org.springframework.web.bind.annotation.GetMapping;
         import org.springframework.web.bind.annotation.RestController;
@@ -76,9 +76,9 @@
             return Mono.just("Payment Service is down. try latter.");
           }
         }
-       ```
+```
        
-       - Below configuration on the the cloud gateway service, helps to setup the fallback using circuit breaker and hystrix.
+   - Below configuration on the the cloud gateway service, helps to setup the fallback using circuit breaker and hystrix.
        
 ```yaml
 spring:
@@ -117,5 +117,5 @@ spring:
         - hystrix.stream
 ```
 
-   - Once the Service starts successfully, use the url to validate if service  is up `http://localhost:8801/actuator/hystrix.stream`.
+   - Once the gateway api Service starts successfully, use the url `http://localhost:8801/actuator/hystrix.stream` to check if service is up
    - The Circuit breaker configuration in the filters, invokes the fallback url in case if service is down.
