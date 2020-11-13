@@ -17,10 +17,17 @@
    
 - Cloud gateway service
    - Microservice configured using spring cloud gateway, acts as an gateway api to access the order and payment service.
+   
    - This service also registered as Eureka client.
+   
    - The configuration in set in the application.yml file, which will redirect any requests to appropriate service
+   
    - The serive is exposed in 8801 port.
-   - Using below configuration, once the service is up, use `http://localhost:8801/order/addOrder` to post order request. (Note: we are using gateway service port)
+   
+   - Use below configuration for cloud gateway api forwarding.
+      - Once the service is up, use `http://localhost:8801/order/addOrder` to post order request. 
+      - Note: we are using gateway service port 8801
+   
          ```yaml
          spring:
             application:
@@ -42,10 +49,10 @@
     
        - add dependency to pom.xml
        ```xml
-       <dependency>
-			    <groupId>org.springframework.cloud</groupId>
-			    <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
-		   </dependency>
+         <dependency>
+	    <groupId>org.springframework.cloud</groupId>
+	    <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+	</dependency>
        ```
        
        - Add `@EnableHystrix ` annotation on the main application CloudGatewayApplication.java in this case.
@@ -97,6 +104,7 @@ spring:
               name: payment-service-failback
               fallbackUri: forward:/paymentServiceFailOver  
 
+ # after 5 seconds if there is no response stop the process
  hystrix.command.fallbackcmd.execution.isolation.thread.timeoutInMilliseconds: 5000
  
  management:
