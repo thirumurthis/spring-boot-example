@@ -119,3 +119,17 @@ spring:
 
    - Once the gateway api Service starts successfully, use the url `http://localhost:8801/actuator/hystrix.stream` to check if service is up
    - The Circuit breaker configuration in the filters, invokes the fallback url in case if service is down.
+
+#####  Another way to configure hystrix properties is via `@Hystrixcommand` annoation on the method which is actually calling another service.
+  ```
+  @HystrixCommand(fallbackMethod="methodToFallBack",
+      commandProperties = {
+           @HystrixProperties(name= "execution.isolation.thread.timeoutInMilliseconds", value= "2000"),
+	   @HystrixProperties(name= "circuitBreaker.requestVolumeThreshold", value= "5"),
+	   @HystrixProperties(name= "circuitBreaker.errorThresholdPercentage", value= "50"),
+	   @HystrixProperties(name= "circuitBreaker.sleepWindowInMilliseconds", value= "5000")
+	   }) 
+  public Order getOrder(){
+  ....
+  }
+  ```
