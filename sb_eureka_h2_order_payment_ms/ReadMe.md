@@ -78,8 +78,11 @@
         }
 ```
        
-   - Below configuration on the the cloud gateway service, helps to setup the fallback using circuit breaker and hystrix.
-       
+ - Below configuration on the the cloud gateway service, helps to setup the fallback using circuit breaker and hystrix.
+    - When the preidacte is matched, the uri is invoked.
+    - The circuit breaker configuration in gateway servie only works well only when invoking the service URL directly. 
+    - With below configuration when using, RestTemplate in Orderservice is not displaying the message as expected.
+      - Include dependecy of hystrix, and add @EnableCircuitBreaker in the @service / @component class with the fallbackMethoed name, which needs to be invoked incase of exception.
 ```yaml
 spring:
   application:
@@ -116,7 +119,74 @@ spring:
         include:
         - hystrix.stream
 ```
+Class to use circuit breaker
+```java
+package com.learn.sb.service;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
+import org.springframework.http.HttpEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.learn.sb.model.Order;
+import com.learn.sb.model.OrderStatus;
+import com.learn.sb.model.Payment;
+import com.learn.sb.repo.OrderRepo;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+
+@Service
+@EnableCircuitBreaker
+public class OrderService {
+
+	@Autowired
+	OrderRepo orderRepo;
+	
+	@Autowired
+	RestTemplate template;
+	
+	public final String URL= "http://PAYMENT-SERVICE/payment/pay";
+	
+	public Order getOrders(int orderId) {
+		return orderRepo.findById(orderId).orElse(new Order());
+	}
+	
+	@HystrixCommand(fallbackMethod = "fallbackOrderService")
+	public OrderStatus addOrder(Order order) {
+		OrderStatus orderStatus = new OrderStatus();
+		Order persistedOrder = orderRepo.save(order);
+		Payment payment = paymentprocess(persistedOrder);
+		orderStatus.setOrder(persistedOrder);
+		orderStatus.setPayment(payment);
+		orderStatus.setStatus(payment.getStatus());
+        return orderStatus;
+	}
+	
+	public Payment paymentprocess(Order order) {
+		Payment payment = new Payment();
+		payment.setOrderId(order.getOrderId());
+		payment.setAmount(order.getOrderAmount());
+		HttpEntity<Payment> request = new HttpEntity<>(payment);
+		return template.postForObject(URL, request, Payment.class);
+	}
+
+	public List<Order> getAllOrders() {
+		return orderRepo.findAll();
+	}
+	
+	public OrderStatus fallbackOrderService(Order order) {
+		OrderStatus orderStatus = new OrderStatus();
+		Order persistedOrder = orderRepo.save(order);
+		orderStatus.setOrder(persistedOrder);
+		orderStatus.setPayment(new Payment());
+		orderStatus.setStatus("From orderService - Payment service not accessible.");
+		return orderStatus;
+	}
+}
+
+```
    - Once the gateway api Service starts successfully, use the url `http://localhost:8801/actuator/hystrix.stream` to check if service is up
    - The Circuit breaker configuration in the filters, invokes the fallback url in case if service is down.
 
